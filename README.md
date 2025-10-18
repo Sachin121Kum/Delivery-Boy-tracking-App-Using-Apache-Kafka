@@ -71,21 +71,106 @@ Before running the application, ensure you have:
 - **Apache Kafka** running on localhost:9092
 - **Maven 3.6+** (for building the project)
 
-## 🚀 Getting Started
+## 📥 Installing Apache Kafka
 
-### 1. Start Apache Kafka
+### Step 1: Download Apache Kafka
 
-First, start your Kafka server:
+1. Visit the [Apache Kafka Downloads](https://kafka.apache.org/downloads) page
+2. Download the latest version (e.g., `kafka_2.13-2.8.0.tgz` for Linux/Mac or `.zip` for Windows)
+3. Extract the downloaded file to your desired location (e.g., `C:\kafka` on Windows)
+
+### Step 2: Install Java (if not already installed)
+
+Kafka requires Java to run. Download and install Java 21 from [Oracle](https://www.oracle.com/java/technologies/downloads/) or [OpenJDK](https://openjdk.org/).
+
+### Step 3: Configure Kafka
+
+1. Navigate to the Kafka directory:
+   ```bash
+   cd C:\kafka  # Windows
+   # or
+   cd /path/to/kafka  # Linux/Mac
+   ```
+
+2. **For Windows users**: Update the `config\server.properties` file:
+   ```properties
+   # Change the log directory path
+   log.dirs=C:\\kafka\\kafka-logs
+   ```
+
+### Step 4: Start Kafka (KRaft Mode - No Zookeeper Required)
+
+**Modern Kafka Setup**: Latest versions use KRaft mode, eliminating the need for Zookeeper.
+
+1. **Generate Cluster ID** (One-time setup):
+   ```bash
+   # Windows
+   .\bin\windows\kafka-storage.bat random-uuid
+   
+   # Linux/Mac
+   bin/kafka-storage.sh random-uuid
+   ```
+   Copy the generated UUID (e.g., `abc123def456`)
+
+2. **Format Storage Directory** (One-time setup):
+   ```bash
+   # Windows (replace YOUR_CLUSTER_ID with the UUID from step 1)
+   .\bin\windows\kafka-storage.bat format -t YOUR_CLUSTER_ID -c config\kraft\server.properties
+   
+   # Linux/Mac
+   bin/kafka-storage.sh format -t YOUR_CLUSTER_ID -c config/kraft/server.properties
+   ```
+
+3. **Start Kafka Server**:
+   ```bash
+   # Windows
+   .\bin\windows\kafka-server-start.bat config\kraft\server.properties
+   
+   # Linux/Mac
+   bin/kafka-server-start.sh config/kraft/server.properties
+   ```
+
+4. **Verify Installation**:
+   ```bash
+   # List topics (should be empty initially)
+   .\bin\windows\kafka-topics.bat --bootstrap-server localhost:9092 --list
+   
+   # Linux/Mac
+   bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+   ```
+
+### Step 5: Create Topic (Optional)
+
+The application will automatically create the required topic, but you can create it manually:
 
 ```bash
+# Windows
+.\bin\windows\kafka-topics.bat --create --topic location-update-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+# Linux/Mac
+bin/kafka-topics.sh --create --topic location-update-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+```
+
+### Troubleshooting Kafka Installation
+
+- **Port 9092 already in use**: Kill existing processes or change the port in `config/kraft/server.properties`
+- **Storage format error**: Ensure you've generated and used the correct cluster ID
+- **Java not found**: Add Java to your system PATH or set `JAVA_HOME` environment variable
+- **KRaft mode issues**: Make sure you're using `config/kraft/server.properties` instead of the old `config/server.properties`
+
+## 🚀 Getting Started
+
+### 1. Install and Start Apache Kafka
+
+Follow the detailed installation steps in the [Installing Apache Kafka](#-installing-apache-kafka) section above.
+
+**Quick Start** (if already installed and configured):
+```bash
 # Navigate to Kafka directory
-cd kafka_2.13-2.8.0
+cd C:\kafka  # or your Kafka installation path
 
-# Start Zookeeper
-.\bin\windows\zookeeper-server-start.bat config\zookeeper.properties
-
-# Start Kafka Server (in a new terminal)
-.\bin\windows\kafka-server-start.bat config\server.properties
+# Start Kafka Server (KRaft mode - no Zookeeper needed)
+.\bin\windows\kafka-server-start.bat config\kraft\server.properties
 ```
 
 ### 2. Build and Run the Services
